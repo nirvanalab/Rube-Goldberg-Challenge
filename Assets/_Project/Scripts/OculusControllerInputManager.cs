@@ -12,14 +12,125 @@ public class OculusControllerInputManager : MonoBehaviour {
     public LayerMask laserMask; //which layers can the raycast collide with
     public float yNudgeAmount = 0f;
     public float moveDistance = 5f;
-	// Use this for initialization
-	void Start () {
-        laser = GetComponentInChildren<LineRenderer>();       
+    private OVRInput.Controller thisController;
+    public bool leftHand = false;
+    public float throwForce = 1.5f;
+    public ObjectMenuManager objectMenuManager;
+    private bool menuIsSwipable;
+    private float menuStickX;
+
+    // Use this for initialization
+    void Start () {
+        laser = GetComponentInChildren<LineRenderer>();     
+        if (leftHand)
+        {
+            thisController = OVRInput.Controller.LTouch;
+        }
+        else
+        {
+            thisController = OVRInput.Controller.RTouch;
+        }
 	}
 	
 	// Update is called once per frame
 	void Update () {
+        if (leftHand)
+        {
+            handleTeleportation();
+        }     
+        else
+        {
 
+            menuStickX = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick, thisController).x;
+            if (menuStickX < 0.45f && menuStickX > -0.45f)
+            {
+                menuIsSwipable = true;
+            }
+            if (menuIsSwipable)
+            {
+                if (menuStickX >= 0.45f)
+                {
+                    swipeRight();
+                    menuIsSwipable = false;
+                }
+                else if (menuStickX <= -0.45f)
+                {
+                    swipeLeft();
+                    menuIsSwipable = false;
+                }
+            }
+            
+
+            if (OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger, thisController))
+            {
+                SpawnObject();
+            }
+        }
+	}
+
+    void SpawnObject()
+    {
+        objectMenuManager.SpawnCurrentObject();
+    }
+
+    public void swipeLeft()
+    {
+        objectMenuManager.MenuLeft();
+        Debug.Log("Swipe Left");
+    }
+
+    public void swipeRight()
+    {
+        objectMenuManager.MenuRight();
+        Debug.Log("Swipe Right");
+    }
+
+    private void OnTriggerStay(Collider col)
+    {
+        //Debug.Log("Colliding");
+        if (col.gameObject.CompareTag("Throwable"))
+        {
+            if (OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger, thisController) < 0.3f)
+            {
+                //release
+                ThrowObject(col);
+            }
+
+            else if (OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger, thisController) > 0.3f)
+            {
+                //grab
+                GrabObject(col);
+            }
+
+        }
+    }
+
+    private void GrabObject(Collider col)
+    {
+        col.transform.SetParent(gameObject.transform);
+        col.GetComponent<Rigidbody>().isKinematic = true; //to avoid gravity
+        //haptic feedback
+        Debug.Log("Grabbed the object");
+    }
+
+    private void ThrowObject(Collider col)
+    {
+        col.transform.SetParent(null);
+        Rigidbody rigidBody = col.GetComponent<Rigidbody>();
+        Debug.Log("Throwing " + col.gameObject.name);
+        if (rigidBody == null )
+        {
+            return;
+        }
+        rigidBody.isKinematic = false;
+        //rigidBody.useGravity = true;
+        rigidBody.velocity = OVRInput.GetLocalControllerVelocity(thisController) * throwForce;
+        rigidBody.angularVelocity = OVRInput.GetLocalControllerAngularVelocity(thisController);
+        Debug.Log("Released Object");
+    }
+
+    private void handleTeleportation()
+    {
         if (OVRInput.Get(OVRInput.Button.PrimaryIndexTrigger))
         {
             Debug.Log("Trigger Down");
@@ -32,14 +143,15 @@ public class OculusControllerInputManager : MonoBehaviour {
             RaycastHit hit;
             if (Physics.Raycast(transform.position, transform.forward, out hit, moveDistance))
             {
+                //hit.collider.gameObject.layer
                 Debug.Log("Hit Object");
                 //if laser hits something
                 //if ( hit.collider.tag == "floor" )
-               // {
-                    teleportLocation = hit.point;
-                    laser.SetPosition(1, teleportLocation);
-                    teleportAimerObject.transform.position = new Vector3(teleportLocation.x, teleportLocation.y + yNudgeAmount, teleportLocation.z);
-               // }
+                // {
+                teleportLocation = hit.point;
+                laser.SetPosition(1, teleportLocation);
+                teleportAimerObject.transform.position = new Vector3(teleportLocation.x, teleportLocation.y + yNudgeAmount, teleportLocation.z);
+                // }
             }
             else
             {
@@ -52,7 +164,7 @@ public class OculusControllerInputManager : MonoBehaviour {
                     Debug.Log("Hit Ground!!!");
                     //teleportLocation = groundRay.point;
                     teleportLocation = new Vector3((transform.forward.x * moveDistance) + transform.position.x, groundRay.point.y, (transform.forward.z * moveDistance) + transform.position.z);
-                 }
+                }
                 Debug.Log("Teleport Location" + teleportLocation);
                 laser.SetPosition(1, (transform.forward * moveDistance) + transform.position);
                 teleportAimerObject.transform.position = teleportLocation + new Vector3(0, yNudgeAmount, 0);
@@ -68,5 +180,5 @@ public class OculusControllerInputManager : MonoBehaviour {
             player.transform.position = new Vector3(teleportLocation.x, 1, teleportLocation.z);
             //player.transform.position = teleportLocation;
         }
-	}
+    }
 }
