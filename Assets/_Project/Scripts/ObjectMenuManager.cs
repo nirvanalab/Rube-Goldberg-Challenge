@@ -14,10 +14,10 @@ public class ObjectMenuManager : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        Debug.Log("Object Menu Manager Start");
+       // Debug.Log("Object Menu Manager Start");
         foreach (Transform child in transform)
         {
-            Debug.Log("Adding Object");
+           // Debug.Log("Adding Object");
             objectList.Add(child.gameObject);
         }
     }
