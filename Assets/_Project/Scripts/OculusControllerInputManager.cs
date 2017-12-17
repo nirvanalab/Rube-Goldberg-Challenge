@@ -19,6 +19,7 @@ public class OculusControllerInputManager : MonoBehaviour {
     public GameObject objectMenu;
     private bool menuIsSwipable;
     private float menuStickX;
+    private bool isGrabbingObject = false;
 
     // Use this for initialization
     void Start () {
@@ -121,7 +122,11 @@ public class OculusControllerInputManager : MonoBehaviour {
             else if (OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger, thisController) > 0.3f)
             {
                 //grab
-                GrabObject(col);
+                if (!isGrabbingObject)
+                {
+                    GrabObject(col);
+                }
+               
             }
 
         }
@@ -131,6 +136,7 @@ public class OculusControllerInputManager : MonoBehaviour {
     {
         col.transform.SetParent(gameObject.transform);
         col.GetComponent<Rigidbody>().isKinematic = true; //to avoid gravity
+        isGrabbingObject = true;
         //haptic feedback
        // Debug.Log("Grabbed the object");
     }
@@ -151,7 +157,7 @@ public class OculusControllerInputManager : MonoBehaviour {
             rigidBody.velocity = OVRInput.GetLocalControllerVelocity(thisController) * throwForce;
             rigidBody.angularVelocity = OVRInput.GetLocalControllerAngularVelocity(thisController);
         }
-
+        isGrabbingObject = false;
 
        // Debug.Log("Released Object");
     }
