@@ -192,6 +192,10 @@ public class OculusControllerInputManager : MonoBehaviour {
                     //teleportLocation = groundRay.point;
                     teleportLocation = new Vector3((transform.forward.x * moveDistance) + transform.position.x, groundRay.point.y, (transform.forward.z * moveDistance) + transform.position.z);
                 }
+                else
+                {
+                    teleportLocation = Vector3.zero;
+                }
                // Debug.Log("Teleport Location" + teleportLocation);
                 laser.SetPosition(1, (transform.forward * moveDistance) + transform.position);
                 teleportAimerObject.transform.position = teleportLocation + new Vector3(0, yNudgeAmount, 0);
@@ -201,10 +205,25 @@ public class OculusControllerInputManager : MonoBehaviour {
 
         if (OVRInput.GetUp(OVRInput.Button.PrimaryIndexTrigger))
         {
-           // Debug.Log("Trigger Up");
-            laser.gameObject.SetActive(false);
+
+            if (teleportLocation != Vector3.zero)
+            {
+                laser.gameObject.SetActive(false);
+                teleportAimerObject.SetActive(false);
+                //player.transform.position = teleportLocation;
+                player.transform.position = new Vector3(teleportLocation.x, teleportLocation.y+1, teleportLocation.z); ;
+            }
+            else
+            {
+                laser.gameObject.SetActive(false);
+                teleportAimerObject.SetActive(false);
+
+                player.transform.position = player.transform.position;
+            }
+            // Debug.Log("Trigger Up");
+            /*laser.gameObject.SetActive(false);
             teleportAimerObject.SetActive(false);
-            player.transform.position = new Vector3(teleportLocation.x, 1, teleportLocation.z);
+            player.transform.position = new Vector3(teleportLocation.x, 1, teleportLocation.z);*/
             //player.transform.position = teleportLocation;
         }
     }
