@@ -10,11 +10,13 @@ public class FanSpeed : MonoBehaviour {
 		
 	}
 
-    private void onTriggerEnter(Collider col)
+    private void OnTriggerStay(Collider Col)
     {
-        if (col.gameObject.CompareTag("Throwable"))
+        Debug.Log("Collision with Fan");
+        if (Col.gameObject.name == "Ball")
         {
-            GetComponent<Rigidbody>().AddForce(Vector3.forward * fanSpeed, ForceMode.Acceleration);
+            Debug.Log("Collision Entered with Fan by Ball");
+            Col.GetComponent<Rigidbody>().AddForce(-transform.forward * fanSpeed, ForceMode.Acceleration);
         }
     }
 }
