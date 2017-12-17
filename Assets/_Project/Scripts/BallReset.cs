@@ -9,10 +9,11 @@ public class BallReset : MonoBehaviour {
     public int totalCollectibleToCollect;
     private List<GameObject> collectibles = new List<GameObject>();
     public SteamVR_LoadLevel loadLevel;
+    Vector3 ballOriginalPosition;
    
 	// Use this for initialization
 	void Start () {
-		
+        ballOriginalPosition = transform.position;
 	}
 
     private void OnCollisionEnter(Collision collision)
@@ -22,7 +23,7 @@ public class BallReset : MonoBehaviour {
         {
             Debug.Log("Entered Collision Ground");
             //set above the pedestal position
-            gameObject.transform.position = new Vector3(1.162f,0.569f,0f);
+            gameObject.transform.position = ballOriginalPosition;
             gameObject.GetComponent<Rigidbody>().isKinematic = true;
 
             if (collectibleHitCount < totalCollectibleToCollect)

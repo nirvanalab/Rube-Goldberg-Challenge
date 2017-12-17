@@ -211,7 +211,7 @@ public class OculusControllerInputManager : MonoBehaviour {
                 laser.gameObject.SetActive(false);
                 teleportAimerObject.SetActive(false);
                 //player.transform.position = teleportLocation;
-                player.transform.position = new Vector3(teleportLocation.x, teleportLocation.y+1, teleportLocation.z); ;
+                player.transform.position = new Vector3(teleportLocation.x, teleportLocation.y+1.2f, teleportLocation.z); ;
             }
             else
             {
