@@ -20,6 +20,8 @@ public class OculusControllerInputManager : MonoBehaviour {
     private bool menuIsSwipable;
     private float menuStickX;
     private bool isGrabbingObject = false;
+    public PlatformCheck platformCheck;
+    private bool isOnPlatform = false;
 
     // Use this for initialization
     void Start () {
@@ -108,9 +110,38 @@ public class OculusControllerInputManager : MonoBehaviour {
         objectMenu.SetActive(false);
     }
 
+    private void OnTriggerEnter(Collider col)
+    {
+        Debug.Log("On Trigger Enter " + col.gameObject.name);
+        if (col.gameObject.name == "Platform")
+        {
+            isOnPlatform = true;
+        }
+    }
+
+    private void OnTriggerExit(Collider col)
+    {
+        Debug.Log("On Trigger Enter " + col.gameObject.name);
+        if (col.gameObject.name == "Platform")
+        {
+            isOnPlatform = false;
+        }
+    }
+    private void OnCollisionStay(Collision col)
+    {
+        Debug.Log("On Colliding " + col.gameObject.name);
+    }
+    private void OnCollisionEnter(Collision col)
+    {
+        Debug.Log("On Collision Enter " + col.gameObject.name);
+    }
+    private void OnCollisionExit(Collision col)
+    {
+        Debug.Log("On Collision Exit " + col.gameObject.name);
+    }
     private void OnTriggerStay(Collider col)
     {
-        //Debug.Log("Colliding");
+        
         if (col.gameObject.CompareTag("Throwable") || col.gameObject.CompareTag("Structure"))
         {
             if (OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger, thisController) < 0.3f)
@@ -156,6 +187,23 @@ public class OculusControllerInputManager : MonoBehaviour {
            // col.gameObject.GetComponent<Collider>().isTrigger = true;
             rigidBody.velocity = OVRInput.GetLocalControllerVelocity(thisController) * throwForce;
             rigidBody.angularVelocity = OVRInput.GetLocalControllerAngularVelocity(thisController);
+
+            //set the corresponding material depending on where the player threw
+            //
+            if (isGrabbingObject )
+            {
+                BallReset ballScript = col.gameObject.GetComponent<BallReset>();
+                bool IsStandingOnPlatform = platformCheck.IsOnPlatform();
+                if (IsStandingOnPlatform)
+                {
+                    ballScript.ApplyGreenGlow();
+                }
+                else
+                {
+                    ballScript.ApplyRedGlow();
+                }
+            }
+           
         }
         isGrabbingObject = false;
 
