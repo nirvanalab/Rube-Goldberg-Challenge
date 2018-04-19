@@ -29,7 +29,7 @@ Most of the times the Raycast hit was not getting detected properly, and I was a
 Overall it took me close to around **40 hours**  to get it to a decent shape. 
 
 **Technology Stack**
-This project is built using Unity 2017.2.0f3 , Oculus Unity Utilities 1.19.0, Steam VR Unity plugin v1.2.2
+This project is built using Unity 2017.3.1f1 , Oculus Unity Utilities 1.19.0, Steam VR Unity plugin v1.2.2
 
 **References**
 The following articles were used as a reference while developing this project
